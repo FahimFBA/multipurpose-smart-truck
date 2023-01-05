@@ -54,9 +54,6 @@ void setup()
   pinMode(LED2 , OUTPUT);
   pinMode(LED3 , OUTPUT);
 
-  
-  Serial.begin(9600);
-
   Serial.begin(9600);
   pinMode(led, OUTPUT);
   dht.begin();
