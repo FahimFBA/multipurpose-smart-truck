@@ -79,8 +79,8 @@ mentioned above, we are calling our project a Multipurpose Smart Truck.
 
 ## Source Code
 1. [Arduino](SourceCode_Arduino.ino)
-2. [IOT Blynk](SourceCode_IOT.ino)
-3. [Arduino IOT Code - Not available right now](#)
+2. [IoT Blynk](SourceCode_IOT.ino)
+3. [Arduino IoT Code - Not available right now](#)
 
 
 <br>
