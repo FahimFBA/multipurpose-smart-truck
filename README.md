@@ -9,3 +9,5 @@ Electronics Lab Project using Arduino, IOT and necessary sensors
 [![Electronics Lab Project - Multipurpose Smart Truck (Team Terminator)](https://img.youtube.com/vi/jxQKOJerdgs/maxresdefault.jpg)](https://www.youtube.com/watch?v=jxQKOJerdgs) 
 ----
 
+
+*ResearchGate link will be added shortly*
