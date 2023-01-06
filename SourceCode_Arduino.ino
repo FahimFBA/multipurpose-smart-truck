@@ -1,8 +1,8 @@
-#include "DHT.h"
-#include <SPI.h>
-#include <MFRC522.h>
-#include <Servo.h>
-#include <LiquidCrystal_I2C.h>
+#include "DHT.h"               // header for DHT11 sensor
+#include <SPI.h>               // header for RFID
+#include <MFRC522.h>           // header for RFID
+#include <Servo.h>             // header for servo motor
+#include <LiquidCrystal_I2C.h> // header for the LCD display
 #include <Wire.h>
 #define DHTPIN 2
 #define DHTTYPE DHT11
@@ -10,29 +10,28 @@
 #define RST_PIN 5
 #define LED_Blind 8
 #define LED_other 9
-
 const int trigPin = 12;
 const int echoPin = 13;
-
 const int LED1 = A0;
 const int LED2 = A1;
 const int LED3 = A2;
 const int LED4 = A3;
 const int LED5 = A4;
 
-int duration = 0;
-int distance = 0;
+int duration = 0; // initial duration for the motion sensor
+int distance = 0; // initial distance for the motion sensor (in cm)
 
 int led = A2;
 DHT dht(DHTPIN, DHTTYPE);
 
-MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance.
-LiquidCrystal_I2C lcd(0x3F, 16, 2);
+MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instances
+LiquidCrystal_I2C lcd(0x3F, 16, 2); // config for the LCD display
 
+// define servo name
 Servo myServo1;
 Servo myServo2;
 Servo myServo3;
-// define servo name
+
 /* Database of RFID's */
 String open = "E3 57 F3 2E";
 String uid1 = "D3 5C 2B 2E";
@@ -70,10 +69,8 @@ void setup()
   pinMode(LED5, OUTPUT);
   pinMode(LED_Blind, OUTPUT);
   pinMode(LED_other, OUTPUT);
-  //  pinMode(BUZZER, OUTPUT);
-  // noTone(BUZZER);
 
-  Serial.println("Put your card to the reader...");
+  Serial.println("Hold your RFID Card/Tag in front of the scanner!");
   Serial.println();
 }
 
@@ -84,14 +81,14 @@ void loop()
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
-  duration = pulseIn(echoPin, HIGH);
+  duration = pulseIn(echoPin, HIGH); // duration for the motion sensor (Ultrasonic Sonar Sensor)
   distance = duration / 58.2;
 
   if (distance <= 8)
   {
     digitalWrite(LED1, HIGH);
     digitalWrite(LED2, HIGH);
-    Serial.println("Shortage of product in the container");
+    Serial.println("There is a shortage of product in the container!");
   }
   else
   {
@@ -106,14 +103,14 @@ void loop()
   float tempC = dht.readTemperature();
   // read temperature as Fahrenheit
   float tempF = dht.readTemperature(true);
+
   // check if any reads failed
   if (isnan(humi) || isnan(tempC) || isnan(tempF))
   {
-    Serial.println("Failed to read from DHT sensor!");
+    Serial.println("Failed to read from the DHT sensor!");
   }
   else
   {
-
     if (tempC < 27.50)
     {
       digitalWrite(led, HIGH);
@@ -125,11 +122,12 @@ void loop()
       Serial.println(tempC);
     }
   }
+
   lcd.clear();
   lcd.setCursor(1, 0);
-  lcd.print("Welcome ");
+  lcd.print("Welcome!");
   lcd.setCursor(0, 1);
-  lcd.print("Scan Your ID    ");
+  lcd.print("Scan Your ID...");
 
   if (!mfrc522.PICC_IsNewCardPresent())
   {
@@ -140,10 +138,12 @@ void loop()
   {
     return;
   }
+
   // Show UID on serial monitor
   Serial.print("UID tag :");
   String content = "";
   byte letter;
+
   for (byte i = 0; i < mfrc522.uid.size; i++)
   {
     Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
@@ -151,20 +151,18 @@ void loop()
     content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
     content.concat(String(mfrc522.uid.uidByte[i], HEX));
   }
-  lcd.clear();
 
+  lcd.clear();
   Serial.println();
   Serial.print("Message : ");
   content.toUpperCase();
+
   if (content.substring(1) == open) // change here the UID of the card/cards that you want to give access
   {
 
     myServo3.write(90);
     delay(1000);
-    // myServo3.write(0);
-    // delay(1000);
   }
-
   else if (content.substring(1) == close) // change here the UID of the card/cards that you want to give access
   {
 
@@ -177,29 +175,21 @@ void loop()
     Serial.println();
     delay(500);
     digitalWrite(LED4, HIGH);
-
-    //  lcd.setCursor(0,0);
-    // lcd.print("Tag 01");
-    // lcd.setCursor(0,1);
-    // lcd.print("Authorized access");
-    // delay(3000);
-    // lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Tag 01");
+    lcd.setCursor(0, 1);
+    lcd.print("Authorized access");
+    delay(3000);
+    lcd.clear();
     myServo2.write(30);
     delay(1000);
     myServo1.write(35);
     delay(1000);
-
     myServo1.write(90);
     delay(1000);
     myServo2.write(0);
     delay(1000);
     digitalWrite(LED4, LOW);
-    //  lcd.setCursor(0,0);
-    // lcd.print("Tag 01");
-    // lcd.setCursor(0,1);
-    // lcd.print("Authorized access");
-    // delay(3000);
-    // lcd.clear();
   }
   else if (content.substring(1) == uid2) // change here the UID of the card/cards that you want to give access
   {
@@ -208,32 +198,22 @@ void loop()
     digitalWrite(LED_Blind, HIGH);
     delay(500);
     digitalWrite(LED4, HIGH);
-    //     pinMode(BUZZER, OUTPUT);
-    // noTone(BUZZER);
-
-    //  lcd.setCursor(0,0);
-    // lcd.print("Tag 02");
-    // lcd.setCursor(0,1);
-    // lcd.print("Authorized access");
-    // delay(3000);
-    // lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Tag 02");
+    lcd.setCursor(0, 1);
+    lcd.print("Authorized access");
+    delay(3000);
+    lcd.clear();
     myServo2.write(30);
     delay(1000);
     myServo1.write(35);
     delay(1000);
-
     myServo1.write(90);
     delay(1000);
     myServo2.write(0);
     digitalWrite(LED_Blind, LOW);
     delay(1000);
     digitalWrite(LED4, LOW);
-    //  lcd.setCursor(0,0);
-    // lcd.print("Tag 01");
-    // lcd.setCursor(0,1);
-    // lcd.print("Authorized access");
-    // delay(3000);
-    // lcd.clear();
   }
   else if (content.substring(1) == uid3) // change here the UID of the card/cards that you want to give access
   {
@@ -242,46 +222,34 @@ void loop()
     digitalWrite(LED_other, HIGH);
     delay(500);
     digitalWrite(LED4, HIGH);
-    //  lcd.setCursor(0,0);
-    // lcd.print("Tag 03");
-    // lcd.setCursor(0,1);
-    // lcd.print("Authorized access");
-    // delay(3000);
-    // lcd.clear();
-
+    lcd.setCursor(0, 0);
+    lcd.print("Tag 03");
+    lcd.setCursor(0, 1);
+    lcd.print("Authorized access");
+    delay(3000);
+    lcd.clear();
     myServo2.write(30);
     delay(1000);
-
     myServo1.write(35);
     delay(1000);
-
     myServo1.write(90);
     delay(1000);
     myServo2.write(0);
     digitalWrite(LED_other, LOW);
     delay(1000);
     digitalWrite(LED4, LOW);
-    //  lcd.setCursor(0,0);
-    // lcd.print("Tag 01");
-    // lcd.setCursor(0,1);
-    // lcd.print("Authorized access");
-    // delay(3000);
-    // lcd.clear();
   }
-
   else
   {
     Serial.println(" Access Denied");
     Serial.println();
     digitalWrite(LED5, HIGH);
-
-    // lcd.setCursor(0,0);
-    // lcd.print("Unknown");
-    // lcd.setCursor(0,1);
-    // lcd.print("Access Denied");
-
+    lcd.setCursor(0, 0);
+    lcd.print("Unknown");
+    lcd.setCursor(0, 1);
+    lcd.print("Access Denied");
     delay(3000);
     digitalWrite(LED5, LOW);
-    //  lcd.clear();
+    lcd.clear();
   }
 }
